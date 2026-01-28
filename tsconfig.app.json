@@ -22,7 +22,12 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "@tafer/react-ui": ["src/index.ts"]
+    }
   },
   "include": ["src"]
 }
