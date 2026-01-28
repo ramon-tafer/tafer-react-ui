@@ -1,0 +1,14 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@tafer/react-ui": ["src/lib/index.ts"],
+      "@tafer/react-ui/*": ["src/lib/*"]
+    }
+  }
+}
