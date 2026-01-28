@@ -1,6 +1,10 @@
 import type { StorybookConfig } from "@storybook/react-vite";
 import { mergeConfig } from "vite";
 import path from "path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const config: StorybookConfig = {
   stories: ["../src/**/*.mdx", "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"],
@@ -14,12 +18,9 @@ const config: StorybookConfig = {
   async viteFinal(config) {
     return mergeConfig(config, {
       resolve: {
-        alias: [
-          {
-            find: /^@tafer\/react-ui$/,
-            replacement: path.resolve(__dirname, "../src/lib/index.ts"),
-          },
-        ],
+        alias: {
+          "@tafer/react-ui": path.resolve(__dirname, "../src/index.ts")
+        },
       },
     });
   },

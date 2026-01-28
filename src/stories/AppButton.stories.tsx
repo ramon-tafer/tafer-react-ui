@@ -1,5 +1,6 @@
+/* eslint-disable-next-line */
 import type { Meta, StoryObj } from "@storybook/react";
-import { AppButton } from "./../index";
+import { AppButton } from "@tafer/react-ui";
 
 const meta: Meta<typeof AppButton> = {
   title: "Components/Button",
