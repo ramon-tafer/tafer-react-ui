@@ -1,11 +1,12 @@
 {
   "name": "@tafer/react-ui",
+  "publishConfig": {
+    "access": "restricted",
+      "registry": "https://npm.pkg.github.com"
+  },
   "private": false,
   "version": "0.1.0",
   "type": "module",
-  "publishConfig": {
-    "access": "restricted"
-  },
   "main": "dist/react-ui.umd.js",
   "module": "dist/react-ui.es.js",
   "files": [
@@ -24,7 +25,8 @@
   ],
   "scripts": {
     "dev": "vite",
-"build": "tsc -p tsconfig.build.json && vite build",
+    "build": "tsc -p tsconfig.build.json && vite build",
+    "tests": "echo: \"No tests yet\"",
     "lint": "eslint .",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
