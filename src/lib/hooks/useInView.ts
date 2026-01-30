@@ -1,26 +1,36 @@
 import { useEffect, useRef, useState } from "react"
 
-export default function useInView(threshold = 0.25){
-    const ref = useRef<HTMLElement | null>(null)
-    const [inView, setInView] = useState(false)
+interface UseInViewOptions {
+    threshold?: number;
+    triggerOnce?: boolean;
+}
+
+export default function useInView<T extends HTMLElement = HTMLElement>(
+    options: UseInViewOptions = {}
+) {
+    const { threshold = 0.25, triggerOnce = false } = options;
+    const ref = useRef<T | null>(null);
+    const [inView, setInView] = useState(false);
 
     useEffect(() => {
         const el = ref.current;
-        if(!el) return
+        if (!el) return;
 
         const observer = new IntersectionObserver(
             ([entry]) => {
-                if(entry.isIntersecting){
-                    setInView(true)
-                    observer.disconnect()
+                setInView(entry.isIntersecting);
+                
+                // Solo desconectar si triggerOnce está activo y está visible
+                if (triggerOnce && entry.isIntersecting) {
+                    observer.disconnect();
                 }
             },
             { threshold }
-        )
+        );
 
-        observer.observe(el)
-        return () => observer.disconnect()
-    }, [threshold])
+        observer.observe(el);
+        return () => observer.disconnect();
+    }, [threshold, triggerOnce]);
 
-    return { ref, inView }
+    return { ref, inView };
 }
