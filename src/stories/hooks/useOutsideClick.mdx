@@ -1,0 +1,342 @@
+import { Meta, Source } from '@storybook/addon-docs/blocks';
+
+<Meta title="Hooks/useOutsideClick" />
+
+# useOutsideClick
+
+Hook personalizado para detectar clics fuera de un elemento específico.
+
+## Descripción
+
+`useOutsideClick` ejecuta una función cuando el usuario hace clic fuera de un elemento referenciado, ideal para cerrar modales, dropdowns, menús contextuales, o cualquier componente overlay que deba cerrarse al hacer clic fuera.
+
+## Uso
+
+<Source
+  code={`
+import { useRef } from 'react';
+import { useOutsideClick } from '@/hooks/useOutsideClick';
+
+function Dropdown({ isOpen, onClose }) {
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  
+  useOutsideClick(dropdownRef, onClose, isOpen);
+  
+  if (!isOpen) return null;
+  
+  return (
+    <div ref={dropdownRef} className="dropdown">
+      {/* contenido del dropdown */}
+    </div>
+  );
+}
+`}
+  language="tsx"
+/>
+
+## API
+
+### Parámetros
+
+| Nombre | Tipo | Por defecto | Descripción |
+|--------|------|-------------|-------------|
+| ref | `React.RefObject<T \| null>` | - | Referencia al elemento que quieres proteger de clics externos |
+| handler | `(e: Event) => void` | - | Función que se ejecuta cuando se hace clic fuera del elemento |
+| enabled | `boolean` | `true` | Controla si el listener está activo |
+
+### Genérico
+
+El hook acepta un tipo genérico `T extends HTMLElement` que permite especificar el tipo exacto del elemento:
+
+<Source
+  code={`
+// Inferido automáticamente
+const divRef = useRef<HTMLDivElement>(null);
+useOutsideClick(divRef, handleClose);
+
+// Especificado explícitamente
+const dialogRef = useRef<HTMLDialogElement>(null);
+useOutsideClick<HTMLDialogElement>(dialogRef, handleClose);
+`}
+  language="tsx"
+/>
+
+### Retorno
+
+Este hook no retorna ningún valor.
+
+## Ejemplos
+
+### Cerrar modal al hacer clic fuera
+
+<Source
+  code={`
+function Modal({ isOpen, onClose }) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  
+  useOutsideClick(modalRef, onClose, isOpen);
+  
+  if (!isOpen) return null;
+  
+  return (
+    <div className="modal-overlay">
+      <div ref={modalRef} className="modal-content">
+        <h2>Modal</h2>
+        <p>Haz clic fuera para cerrar</p>
+      </div>
+    </div>
+  );
+}
+`}
+  language="tsx"
+/>
+
+### Dropdown con control de cierre
+
+<Source
+  code={`
+function UserMenu() {
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  
+  useOutsideClick(menuRef, () => setIsOpen(false), isOpen);
+  
+  return (
+    <div className="relative">
+      <button onClick={() => setIsOpen(!isOpen)}>
+        Mi Cuenta
+      </button>
+      
+      {isOpen && (
+        <div ref={menuRef} className="menu-dropdown">
+          <a href="/profile">Perfil</a>
+          <a href="/settings">Configuración</a>
+          <button onClick={() => console.log('logout')}>Cerrar sesión</button>
+        </div>
+      )}
+    </div>
+  );
+}
+`}
+  language="tsx"
+/>
+
+### Menú contextual
+
+<Source
+  code={`
+function ContextMenu({ x, y, isOpen, onClose }) {
+  const menuRef = useRef<HTMLDivElement>(null);
+  
+  useOutsideClick(menuRef, onClose, isOpen);
+  
+  if (!isOpen) return null;
+  
+  return (
+    <div 
+      ref={menuRef}
+      style={{ position: 'fixed', top: y, left: x }}
+      className="context-menu"
+    >
+      <button>Copiar</button>
+      <button>Pegar</button>
+      <button>Eliminar</button>
+    </div>
+  );
+}
+`}
+  language="tsx"
+/>
+
+### Drawer lateral con opción de cierre
+
+<Source
+  code={`
+function Drawer({ isOpen, onClose, closeOnOutsideClick = true }) {
+  const drawerRef = useRef<HTMLDivElement>(null);
+  
+  // Solo habilitar el cierre externo si closeOnOutsideClick es true
+  useOutsideClick(drawerRef, onClose, isOpen && closeOnOutsideClick);
+  
+  if (!isOpen) return null;
+  
+  return (
+    <>
+      <div className="drawer-overlay" />
+      <div ref={drawerRef} className="drawer">
+        <h2>Drawer</h2>
+        {closeOnOutsideClick && (
+          <p className="hint">Haz clic fuera para cerrar</p>
+        )}
+      </div>
+    </>
+  );
+}
+`}
+  language="tsx"
+/>
+
+### Combinado con otros hooks
+
+<Source
+  code={`
+import { useKeydown } from '@/hooks/useKeydown';
+import { useAvoidScroll } from '@/hooks/useAvoidScroll';
+
+function CompleteModal({ isOpen, onClose }) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  
+  // Cerrar al hacer clic fuera
+  useOutsideClick(modalRef, onClose, isOpen);
+  
+  // Cerrar con Escape
+  useKeydown({ handler: onClose, open: isOpen, key: 'Escape' });
+  
+  // Prevenir scroll del body
+  useAvoidScroll({ trigger: isOpen });
+  
+  if (!isOpen) return null;
+  
+  return (
+    <div className="modal-overlay">
+      <div ref={modalRef} className="modal">
+        <h2>Modal Completo</h2>
+        <p>Puedes cerrar con clic fuera o con Escape</p>
+      </div>
+    </div>
+  );
+}
+`}
+  language="tsx"
+/>
+
+### Deshabilitar temporalmente
+
+<Source
+  code={`
+function AdvancedDropdown() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  
+  // No cerrar al hacer clic fuera mientras se está editando
+  useOutsideClick(
+    dropdownRef, 
+    () => setIsOpen(false), 
+    isOpen && !isEditing
+  );
+  
+  return (
+    <div ref={dropdownRef}>
+      <button onClick={() => setIsOpen(!isOpen)}>Toggle</button>
+      
+      {isOpen && (
+        <div>
+          <input 
+            onFocus={() => setIsEditing(true)}
+            onBlur={() => setIsEditing(false)}
+            placeholder="Escribe aquí..."
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+`}
+  language="tsx"
+/>
+
+## Comportamiento
+
+- **Eventos detectados:** El hook escucha eventos `pointerdown`, que incluyen tanto clics del mouse como toques táctiles.
+- **Propagación:** Si el clic ocurre dentro del elemento referenciado o en alguno de sus hijos, el handler NO se ejecuta.
+- **Performance:** El listener solo se añade cuando `enabled` es `true`, optimizando el rendimiento.
+- **Cleanup:** El hook limpia automáticamente el listener cuando el componente se desmonta o cuando cambian las dependencias.
+
+## Consideraciones
+
+- **Referencia obligatoria:** Debes pasar una ref válida. Si `ref.current` es `null`, el hook no ejecutará el handler.
+- **Parámetro enabled:** Usa el parámetro `enabled` para controlar cuándo debe estar activo el listener, evitando ejecuciones innecesarias.
+- **Eventos de puntero:** El hook usa `pointerdown` en lugar de `click` o `mousedown`, lo que proporciona mejor compatibilidad con dispositivos táctiles.
+- **Múltiples elementos:** Si necesitas proteger múltiples elementos, considera combinarlos en un contenedor común en lugar de usar múltiples hooks.
+
+## Por qué pointerdown?
+
+El evento `pointerdown` ofrece varias ventajas:
+
+- ✅ Funciona con mouse, touch y stylus
+- ✅ Se dispara antes que `click`, detectando la interacción más temprano
+- ✅ Mejor experiencia en dispositivos móviles
+- ✅ API unificada para todos los tipos de entrada
+
+## Troubleshooting
+
+### El handler se ejecuta incluso al hacer clic dentro
+
+Asegúrate de que la ref está correctamente asignada:
+
+<Source
+  code={`
+// ❌ Incorrecto
+<div>
+  <div ref={myRef}>Contenido</div>
+</div>
+
+// ✅ Correcto - la ref está en el elemento que quieres proteger
+<div ref={myRef}>
+  <div>Contenido</div>
+</div>
+`}
+  language="tsx"
+/>
+
+### El hook no funciona
+
+Verifica que `enabled` sea `true` cuando debería estar activo:
+
+<Source
+  code={`
+// ❌ El hook nunca estará activo si isOpen es false
+useOutsideClick(ref, onClose, false);
+
+// ✅ Activar solo cuando el modal está abierto
+useOutsideClick(ref, onClose, isOpen);
+`}
+  language="tsx"
+/>
+
+## Código fuente
+
+<Source
+  code={`
+import { useEffect } from "react";
+
+export function useOutsideClick<T extends HTMLElement = HTMLElement>(
+    ref: React.RefObject<T | null>, 
+    handler: (e: Event) => void, 
+    enabled: boolean = true
+) {
+    useEffect(() => {
+        if (!enabled) return;
+
+        const listener = (e: Event) => {
+            const target = e.target as Node;
+            
+            if (!ref.current || ref.current.contains(target)) {
+                return;
+            }
+
+            handler(e);
+        };
+
+        document.addEventListener('pointerdown', listener);
+
+        return () => { 
+            document.removeEventListener('pointerdown', listener); 
+        };
+        
+    }, [ref, handler, enabled]);
+}
+`}
+  language="typescript"
+/>
