@@ -26,7 +26,7 @@ export default function Modal({
     useKeydown({ 
       handler: onClose, 
       key: 'Escape', 
-      open: open && closeOnEscape 
+      enabled: open && closeOnEscape 
     })
     useAvoidScroll({ trigger: open })    
     

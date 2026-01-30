@@ -2,19 +2,20 @@ import { useEffect } from "react";
 
 interface Props {
   handler: (e: KeyboardEvent) => void;
-  open: boolean;
+  enabled?: boolean;
   key: string;
 }
 
-export default function useKeydown({ handler, open, key }: Props) {
+export default function useKeydown({ handler, enabled = true, key }: Props) {
   useEffect(() => {
+    if(!open) return
     const handleKeydown = (e: KeyboardEvent) => {
-      if (e.key === key && open) {
+      if (e.key === key) {
         handler(e);
       }
     };
 
     document.addEventListener("keydown", handleKeydown);
     return () => document.removeEventListener("keydown", handleKeydown);
-  }, [open, handler, key]);
+  }, [enabled, handler, key]);
 }

@@ -29,7 +29,7 @@ export default function Drawer({
     useOutsideClick(ref, onClose, open && closeOnOutsideClick)
     useKeydown({ 
         handler: onClose, 
-        open: open && closeOnEscape, 
+        enabled: open && closeOnEscape, 
         key: 'Escape' 
     })
     useAvoidScroll({ trigger: open })
