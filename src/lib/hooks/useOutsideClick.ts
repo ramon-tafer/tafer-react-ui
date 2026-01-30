@@ -18,12 +18,9 @@ export function useOutsideClick<T extends HTMLElement = HTMLElement>(
             handler(e);
         };
 
-        document.addEventListener('mousedown', listener);
-        document.addEventListener('touchstart', listener);
+        document.addEventListener('pointerdown', listener);
 
-        return () => {
-            document.removeEventListener('mousedown', listener);
-            document.removeEventListener('touchstart', listener);
-        };
+        return () => { document.removeEventListener('pointerdown', listener); };
+        
     }, [ref, handler, enabled]);
 }
