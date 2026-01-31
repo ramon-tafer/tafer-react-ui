@@ -1,0 +1,47 @@
+import { Meta, Source } from '@storybook/addon-docs/blocks';
+
+<Meta title="Hooks/useAvoidScroll" />
+
+# useAvoidScroll
+
+Hook personalizado para prevenir el scroll del body cuando un elemento está activo.
+
+## Uso básico
+
+<Source
+  code={`
+import useAvoidScroll from '@/hooks/useAvoidScroll';
+
+function Modal({ isOpen }) {
+  useAvoidScroll({ trigger: isOpen });
+  
+  return // ... tu componente
+}
+  `}
+  language="tsx"
+/>
+
+## Parámetros
+
+- **trigger** (`boolean`): Cuando es `true`, deshabilita el scroll del body.
+
+## Código fuente
+
+<Source
+  code={`
+import { useEffect } from "react";
+
+export default function useAvoidScroll({ trigger }: { trigger: boolean }) {
+    useEffect(() => {
+        if(trigger){
+            document.body.style.overflow = 'hidden'
+            
+            return () => { 
+                document.body.style.overflow = '' 
+            }
+        }
+    }, [trigger])
+}
+  `}
+  language="typescript"
+/>

@@ -1,0 +1,232 @@
+import { Meta, Source } from '@storybook/addon-docs/blocks';
+
+<Meta title="Hooks/useKeydown" />
+
+# useKeydown
+
+Hook personalizado para ejecutar una función cuando se presiona una tecla específica.
+
+## Descripción
+
+`useKeydown` escucha eventos de teclado y ejecuta un handler cuando se presiona una tecla específica, útil para implementar shortcuts de teclado, cerrar modales con Escape, o cualquier interacción basada en teclado.
+
+## Uso
+
+<Source
+  code={`
+import useKeydown from '@/hooks/useKeydown';
+
+function Modal({ isOpen, onClose }) {
+  useKeydown({ 
+    handler: onClose, 
+    open: isOpen, 
+    key: 'Escape' 
+  });
+  
+  return (
+    // ... tu componente
+  );
+}
+`}
+  language="tsx"
+/>
+
+## API
+
+### Parámetros
+| Nombre  | Tipo                         | Descripción |
+|---------|------------------------------|-------------|
+| handler | `(e: KeyboardEvent) => void` | Función que se ejecuta |
+| open    | `boolean`                    | Activa el listener |
+| key     | `string`                     | Tecla a escuchar |
+
+
+### Retorno
+
+Este hook no retorna ningún valor.
+
+## Ejemplos
+
+### Cerrar modal con Escape
+
+<Source
+  code={`
+function Modal({ isOpen, onClose }) {
+  useKeydown({ 
+    handler: onClose, 
+    open: isOpen, 
+    key: 'Escape' 
+  });
+  
+  if (!isOpen) return null;
+  
+  return (
+    <div className="modal">
+      <h2>Modal</h2>
+      <p>Presiona Escape para cerrar</p>
+    </div>
+  );
+}
+`}
+  language="tsx"
+/>
+
+### Shortcut para guardar con Ctrl+S
+
+<Source
+  code={`
+function Editor() {
+  const [content, setContent] = useState('');
+  const [saved, setSaved] = useState(false);
+  
+  const handleSave = (e: KeyboardEvent) => {
+    e.preventDefault(); // Prevenir el guardar del navegador
+    // Lógica para guardar
+    setSaved(true);
+  };
+  
+  useKeydown({ 
+    handler: handleSave, 
+    open: true, 
+    key: 's' // Nota: esto escucha solo 's', necesitarías lógica adicional para Ctrl
+  });
+  
+  return (
+    <textarea 
+      value={content} 
+      onChange={(e) => setContent(e.target.value)} 
+    />
+  );
+}
+`}
+  language="tsx"
+/>
+
+### Navegación con flechas
+
+<Source
+  code={`
+function Gallery({ images }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
+  
+  useKeydown({
+    handler: () => setCurrentIndex(prev => Math.max(0, prev - 1)),
+    open: isViewerOpen,
+    key: 'ArrowLeft'
+  });
+  
+  useKeydown({
+    handler: () => setCurrentIndex(prev => Math.min(images.length - 1, prev + 1)),
+    open: isViewerOpen,
+    key: 'ArrowRight'
+  });
+  
+  useKeydown({
+    handler: () => setIsViewerOpen(false),
+    open: isViewerOpen,
+    key: 'Escape'
+  });
+  
+  return (
+    // ... galería de imágenes
+  );
+}
+`}
+  language="tsx"
+/>
+
+### Múltiples teclas con diferentes acciones
+
+<Source
+  code={`
+function App() {
+  const [showHelp, setShowHelp] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  
+  // Mostrar ayuda con '?'
+  useKeydown({ 
+    handler: () => setShowHelp(true), 
+    open: !showHelp, 
+    key: '?' 
+  });
+  
+  // Abrir búsqueda con '/'
+  useKeydown({ 
+    handler: () => setShowSearch(true), 
+    open: !showSearch, 
+    key: '/' 
+  });
+  
+  return (
+    <div>
+      {showHelp && <HelpModal />}
+      {showSearch && <SearchModal />}
+    </div>
+  );
+}
+`}
+  language="tsx"
+/>
+
+Consulta [KeyboardEvent.key en MDN](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values) para ver todos los valores posibles.
+
+## Consideraciones
+
+- El hook escucha eventos a nivel de documento, por lo que funcionará independientemente del elemento que tenga el foco.
+- Para combinaciones de teclas (como Ctrl+S), necesitarás verificar `e.ctrlKey`, `e.shiftKey`, `e.altKey`, o `e.metaKey` dentro del handler.
+- El parámetro `open` es útil para evitar conflictos cuando tienes múltiples componentes que escuchan la misma tecla.
+- Las teclas son case-sensitive: `'a'` es diferente de `'A'`.
+
+## Ejemplo con modificadores
+
+<Source
+  code={`
+function Editor() {
+  const handleSave = (e: KeyboardEvent) => {
+    // Solo guardar si se presiona Ctrl/Cmd + S
+    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      e.preventDefault();
+      // Guardar documento
+    }
+  };
+  
+  useKeydown({ 
+    handler: handleSave, 
+    open: true, 
+    key: 's' 
+  });
+  
+  return <textarea />;
+}
+`}
+  language="tsx"
+/>
+
+## Código fuente
+
+<Source
+  code={`
+import { useEffect } from "react";
+
+interface Props {
+  handler: (e: KeyboardEvent) => void;
+  open: boolean;
+  key: string;
+}
+
+export default function useKeydown({ handler, open, key }: Props) {
+  useEffect(() => {
+    const handleKeydown = (e: KeyboardEvent) => {
+      if (e.key === key && open) {
+        handler(e);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeydown);
+    return () => document.removeEventListener("keydown", handleKeydown);
+  }, [open, handler, key]);
+}
+`}
+  language="typescript"
+/>
