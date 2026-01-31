@@ -46,6 +46,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: Configure git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Bump version (create tag)
         run: npm version ${{ steps.bump.outputs.type }}
 
