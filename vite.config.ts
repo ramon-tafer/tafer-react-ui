@@ -1,62 +1,44 @@
-/// <reference types="vitest/config" />
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 
-// https://vite.dev/config/
-import { fileURLToPath } from 'node:url';
-import { storybookTest } from '@storybook/addon-vitest/vitest-plugin';
-import { playwright } from '@vitest/browser-playwright';
-const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url));
-
-// More info at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon
 export default defineConfig({
-  plugins: [tailwindcss(), react({
-    babel: {
-      plugins: [["babel-plugin-react-compiler"]]
-    }
-  })],
+  plugins: [
+    tailwindcss(),
+    react({
+      babel: {
+        plugins: [["babel-plugin-react-compiler"]],
+      },
+    }),
+  ],
   build: {
     emptyOutDir: false,
     lib: {
-      entry: path.resolve(__dirname, "src/index.ts"),
+      entry: {
+        index: path.resolve(__dirname, "src/index.ts"),
+        "components/core": path.resolve(
+          __dirname,
+          "src/lib/components/core/index.ts",
+        ),
+        hooks: path.resolve(__dirname, "src/lib/hooks/index.ts"),
+      },
       name: "TaferReactUI",
-      formats: ["es", "umd"],
-      fileName: format => `react-ui.${format}.js`
+      formats: ["es"],
+      fileName: (format) => `react-ui.${format}.js`,
     },
     rollupOptions: {
-      // Evita bundlear dependencias externas
       external: ["react", "react-dom"],
       output: {
         globals: {
           react: "React",
-          "react-dom": "ReactDOM"
-        }
-      }
-    }
-  },
-  test: {
-    projects: [{
-      extends: true,
-      plugins: [
-      // The plugin will run tests for the stories defined in your Storybook config
-      // See options at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon#storybooktest
-      storybookTest({
-        configDir: path.join(dirname, '.storybook')
-      })],
-      test: {
-        name: 'storybook',
-        browser: {
-          enabled: true,
-          headless: true,
-          provider: playwright({}),
-          instances: [{
-            browser: 'chromium'
-          }]
+          "react-dom": "ReactDOM",
         },
-        setupFiles: ['.storybook/vitest.setup.ts']
-      }
-    }]
-  }
+        entryFileNames: () => {
+          // Esto genera archivos por carpeta
+          return `dist/[name].esm.js`;
+        },
+      },
+    },
+  },
 });

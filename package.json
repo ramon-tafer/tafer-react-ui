@@ -16,8 +16,23 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/react-ui.es.js",
-      "require": "./dist/react-ui.umd.js"
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.umd.js"
+    },
+    "./components/core": {
+      "types": "./dist/components/core.d.ts",
+      "import": "./dist/components/core.esm.js",
+      "require": "./dist/components/core.umd.js"
+    },
+    "./components/form": {
+      "types": "./dist/components/form.d.ts",
+      "import": "./dist/components/form.esm.js",
+      "require": "./dist/components/form.umd.js"
+    },
+    "./hooks": {
+      "types": "./dist/hooks.d.ts",
+      "import": "./dist/hooks.esm.js",
+      "require": "./dist/hooks.umd.js"
     }
   },
   "repository": {
