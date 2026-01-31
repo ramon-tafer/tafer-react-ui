@@ -26,7 +26,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -p tsconfig.build.json && vite build",
-    "test": "echo: \"No tests yet\"",
+    "test": "echo \"Error: no test specified\"",
     "lint": "eslint .",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
