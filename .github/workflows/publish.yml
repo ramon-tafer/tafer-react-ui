@@ -1,0 +1,56 @@
+name: Publish UI Package
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://npm.pkg.github.com/'
+          scope: '@tafer'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Determine version bump
+        id: bump
+        run: |
+          PR_NUMBER=$(git log -1 --pretty=%B | grep -oE '#[0-9]+' | tr -d '#')
+          LABELS=$(gh pr view $PR_NUMBER --json labels --jq '.labels[].name')
+
+          if echo "$LABELS" | grep -q 'release:major'; then
+            echo "type=major" >> $GITHUB_OUTPUT
+          elif echo "$LABELS" | grep -q 'release:minor'; then
+            echo "type=minor" >> $GITHUB_OUTPUT
+          else
+            echo "type=patch" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bump version
+        run: |
+          npm version ${{ steps.bump.outputs.type }} --no-git-tag-version
+
+      - name: Publish to GitHub Packages
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
