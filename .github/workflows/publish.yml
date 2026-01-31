@@ -22,7 +22,7 @@ jobs:
         with:
           node-version: '22'
           registry-url: 'https://npm.pkg.github.com/'
-          scope: '@tafer'
+          scope: '@ramon-tafer'
 
       - name: Install dependencies
         run: npm ci

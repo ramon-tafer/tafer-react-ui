@@ -1,5 +1,5 @@
 {
-  "name": "@tafer/react-ui",
+  "name": "@ramon-tafer/react-ui",
   "publishConfig": {
     "access": "restricted",
     "registry": "https://npm.pkg.github.com"
